@@ -1,39 +1,36 @@
 mod board;
 mod minimax;
 mod game_state;
+mod user_interface;
 
 use board::Board;
 use minimax::best_move;
-use game_state::Player;
+use game_state::{GameState, Player};
+use user_interface::{display_board, get_user_move, print_game_result};
 
 fn main() {
     let mut board = Board::new();
     let mut current_player = Player::X;
 
     loop {
-        board.display();
+        display_board(&board);
         match board.get_winner() {
-            game_state::GameState::Win(player) => {
-                println!("{:?} wins!", player);
+            GameState::Win(player) => {
+                print_game_result(GameState::Win(player));
                 break;
             }
-            game_state::GameState::Draw => {
-                println!("It's a draw!");
+            GameState::Draw => {
+                print_game_result(GameState::Draw);
                 break;
             }
-            game_state::GameState::Ongoing => (),
+            GameState::Ongoing => (),
         }
 
         if current_player == Player::X {
             let (row, col) = best_move(&mut board, current_player);
             board.make_move(row, col, current_player);
         } else {
-            println!("Enter your move (row and col): ");
-            let mut input = String::new();
-            std::io::stdin().read_line(&mut input).unwrap();
-            let mut parts = input.trim().split_whitespace();
-            let row: usize = parts.next().unwrap().parse().unwrap();
-            let col: usize = parts.next().unwrap().parse().unwrap();
+            let (row, col) = get_user_move();
             if !board.make_move(row, col, current_player) {
                 println!("Invalid move. Try again.");
                 continue;
