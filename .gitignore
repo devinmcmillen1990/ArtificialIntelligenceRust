@@ -1,0 +1,4 @@
+tic-tac-toe-ai/target/debug/*
+tic-tac-toe-ai/target/.rustc_info.json
+tic-tac-toe-ai/target/CACHEDIR.TAG
+*/Cargo.lock
