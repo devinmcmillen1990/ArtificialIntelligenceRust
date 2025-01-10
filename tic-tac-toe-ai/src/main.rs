@@ -11,10 +11,10 @@ use knowledge_cache::{MinimaxCache, WeightedCache};
 use user_interface::{display_board, get_user_move, parse_command_line_args};
 
 fn main() {
-    // Parse command line arguments to determine the algorithm to use
+    // Parse command line arguments to determine the algorithm to use.
     let use_weighted = parse_command_line_args();
 
-    // Load the appropriate cache
+    // Load the appropriate cache based on the algorithm.
     if use_weighted {
         let mut cache = WeightedCache::load_from_file("cache_weighted.json");
         println!("Loaded {} states from weighted cache.", cache.map.len());
@@ -39,21 +39,24 @@ fn main() {
             }
 
             if current_player == Player::X {
+                // User's turn to play.
                 loop {
                     let (row, col) = get_user_move();
-                    if board.make_move(row, col, current_player) {
+                    if board.make_move(row, col, &current_player) {
                         break;
                     } else {
                         println!("Invalid move. Try again.");
                     }
                 }
             } else {
+                // AI's turn using the weighted minimax algorithm.
                 let (row, col) =
                     minimax_weighted::best_weighted_move(&mut board, current_player, &mut cache.map);
-                board.make_move(row, col, current_player);
+                board.make_move(row, col, &current_player);
                 cache.save_to_file("cache_weighted.json");
             }
 
+            // Switch to the next player.
             current_player = if current_player == Player::X {
                 Player::O
             } else {
@@ -86,21 +89,23 @@ fn main() {
             }
 
             if current_player == Player::X {
+                // User's turn to play.
                 loop {
                     let (row, col) = get_user_move();
-                    if board.make_move(row, col, current_player) {
+                    if board.make_move(row, col, &current_player) {
                         break;
                     } else {
                         println!("Invalid move. Try again.");
                     }
                 }
             } else {
-                let (row, col) =
-                    minimax::best_move(&mut board, current_player, &mut cache.map);
-                board.make_move(row, col, current_player);
+                // AI's turn using the standard minimax algorithm.
+                let (row, col) = minimax::best_move(&mut board, current_player, &mut cache.map);
+                board.make_move(row, col, &current_player);
                 cache.save_to_file("cache_minimax.json");
             }
 
+            // Switch to the next player.
             current_player = if current_player == Player::X {
                 Player::O
             } else {
