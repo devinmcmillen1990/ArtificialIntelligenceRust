@@ -12,19 +12,6 @@ impl Board {
         }
     }
 
-    pub fn display(&self) {
-        for row in &self.grid {
-            for cell in row {
-                match cell {
-                    Some(Player::X) => print!("X "),
-                    Some(Player::O) => print!("O "),
-                    None => print!(". "),
-                }
-            }
-            println!();
-        }
-    }
-
     pub fn make_move(&mut self, row: usize, col: usize, player: Player) -> bool {
         if self.grid[row][col].is_none() {
             self.grid[row][col] = Some(player);

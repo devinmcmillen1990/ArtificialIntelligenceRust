@@ -1,13 +1,13 @@
+use std::env;
 use crate::board::Board;
-use crate::game_state::{GameState, Player};
 use std::io;
 
+/// Displays the current state of the game board.
 pub fn display_board(board: &Board) {
     for row in &board.grid {
         for cell in row {
             match cell {
-                Some(Player::X) => print!("X "),
-                Some(Player::O) => print!("O "),
+                Some(player) => print!("{:?} ", player),
                 None => print!(". "),
             }
         }
@@ -15,6 +15,7 @@ pub fn display_board(board: &Board) {
     }
 }
 
+/// Prompts the user to input their move.
 pub fn get_user_move() -> (usize, usize) {
     println!("Enter your move (row and col): ");
     let mut input = String::new();
@@ -25,10 +26,8 @@ pub fn get_user_move() -> (usize, usize) {
     (row, col)
 }
 
-pub fn print_game_result(game_state: GameState) {
-    match game_state {
-        GameState::Win(player) => println!("{:?} wins!", player),
-        GameState::Draw => println!("It's a draw!"),
-        GameState::Ongoing => (),
-    }
+/// Parses command line arguments to determine if the weighted algorithm should be used.
+pub fn parse_command_line_args() -> bool {
+    let args: Vec<String> = env::args().collect();
+    args.iter().any(|arg| arg == "-weighted" || arg == "--w")
 }
