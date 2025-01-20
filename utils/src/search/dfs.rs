@@ -1,46 +1,45 @@
+/// Perform a depth-first search to find the target value in the grid.
+/// Returns a tuple: (bool, Option<(usize, usize)>), where the boolean indicates
+/// whether the value was found, and the `Option` provides the position if found.
 pub fn dfs<T: PartialEq>(
     grid: &[Vec<T>],
     start: (usize, usize),
-    target_value: &T,
-) -> bool {
+    target: &T,
+) -> (bool, Option<(usize, usize)>) {
     let mut visited = vec![vec![false; grid[0].len()]; grid.len()];
-    dfs_helper(grid, start, target_value, &mut visited)
-}
+    let mut stack = vec![start];
 
-fn dfs_helper<T: PartialEq>(
-    grid: &[Vec<T>],
-    current: (usize, usize),
-    target_value: &T,
-    visited: &mut Vec<Vec<bool>>,
-) -> bool {
-    let (row, col) = current;
+    while let Some((row, col)) = stack.pop() {
+        // Skip out-of-bounds or already-visited cells.
+        if row >= grid.len() || col >= grid[0].len() || visited[row][col] {
+            continue;
+        }
 
-    // Check bounds and whether the cell is already visited.
-    if row >= grid.len() || col >= grid[0].len() || visited[row][col] {
-        return false;
-    }
+        // Mark the cell as visited.
+        visited[row][col] = true;
 
-    // Mark the cell as visited.
-    visited[row][col] = true;
+        // Check if the current cell contains the target value.
+        if &grid[row][col] == target {
+            return (true, Some((row, col)));
+        }
 
-    // Check if the current cell contains the target value.
-    if &grid[row][col] == target_value {
-        return true;
-    }
+        // Add neighbors to the stack (DFS traversal).
+        let neighbors = [
+            (row.wrapping_sub(1), col), // Up
+            (row + 1, col),             // Down
+            (row, col.wrapping_sub(1)), // Left
+            (row, col + 1),             // Right
+        ];
 
-    // Explore neighbors (up, down, left, right).
-    let neighbors = vec![
-        (row.wrapping_sub(1), col), // Up
-        (row + 1, col),             // Down
-        (row, col.wrapping_sub(1)), // Left
-        (row, col + 1),             // Right
-    ];
-
-    for (next_row, next_col) in neighbors {
-        if dfs_helper(grid, (next_row, next_col), target_value, visited) {
-            return true;
+        for &(next_row, next_col) in &neighbors {
+            if next_row < grid.len()
+                && next_col < grid[0].len()
+                && !visited[next_row][next_col]
+            {
+                stack.push((next_row, next_col));
+            }
         }
     }
 
-    false
+    (false, None) // Return false and no position if the target is not found.
 }

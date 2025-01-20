@@ -8,10 +8,15 @@ fn test_dfs_search_value_with_single_element_grid_is_found() {
     let target_value = true;
 
     // Act: Perform DFS.
-    let result = dfs(&grid, start, &target_value);
+    let (found, position) = dfs(&grid, start, &target_value);
 
-    // Assert: Verify the value is found.
-    assert!(result, "DFS should find the target value in the grid.");
+    // Assert: Verify the value is found and the position is correct.
+    assert!(found, "DFS should find the target value in the grid.");
+    assert_eq!(
+        position,
+        Some((0, 0)),
+        "DFS should return the correct position of the target value."
+    );
 }
 
 #[test]
@@ -22,10 +27,11 @@ fn test_dfs_search_value_with_single_element_grid_is_not_found() {
     let target_value = false;
 
     // Act: Perform DFS.
-    let result = dfs(&grid, start, &target_value);
+    let (found, position) = dfs(&grid, start, &target_value);
 
-    // Assert: Verify the value is found.
-    assert!(!result, "DFS should find the target value in the grid.");
+    // Assert: Verify the value is not found and the position is None.
+    assert!(!found, "DFS should not find a value that is not in the grid.");
+    assert_eq!(position, None, "DFS should return None when value is not found.");
 }
 
 #[test]
@@ -36,10 +42,15 @@ fn test_dfs_search_value_found() {
     let target_value = 5;
 
     // Act: Perform DFS.
-    let result = dfs(&grid, start, &target_value);
+    let (found, position) = dfs(&grid, start, &target_value);
 
-    // Assert: Verify the value is found.
-    assert!(result, "DFS should find the target value in the grid.");
+    // Assert: Verify the value is found and the position is correct.
+    assert!(found, "DFS should find the target value in the grid.");
+    assert_eq!(
+        position,
+        Some((1, 1)),
+        "DFS should return the correct position of the target value."
+    );
 }
 
 #[test]
@@ -50,13 +61,14 @@ fn test_dfs_search_value_not_found() {
     let target_value = 10;
 
     // Act: Perform DFS.
-    let result = dfs(&grid, start, &target_value);
+    let (found, position) = dfs(&grid, start, &target_value);
 
-    // Assert: Verify the value is not found.
+    // Assert: Verify the value is not found and the position is None.
     assert!(
-        !result,
+        !found,
         "DFS should not find a value that does not exist in the grid."
     );
+    assert_eq!(position, None, "DFS should return None when value is not found.");
 }
 
 #[test]
@@ -73,10 +85,15 @@ fn test_dfs_search_large_grid_value_found() {
     let target_value = "m";
 
     // Act: Perform DFS.
-    let result = dfs(&grid, start, &target_value);
+    let (found, position) = dfs(&grid, start, &target_value);
 
-    // Assert: Verify the value is found.
-    assert!(result, "DFS should find the target value 'm' in the grid.");
+    // Assert: Verify the value is found and the position is correct.
+    assert!(found, "DFS should find the target value 'm' in the grid.");
+    assert_eq!(
+        position,
+        Some((2, 2)),
+        "DFS should return the correct position of the target value 'm'."
+    );
 }
 
 #[test]
@@ -93,11 +110,16 @@ fn test_dfs_search_large_grid_value_not_found() {
     let target_value = "z";
 
     // Act: Perform DFS.
-    let result = dfs(&grid, start, &target_value);
+    let (found, position) = dfs(&grid, start, &target_value);
 
-    // Assert: Verify the value is not found.
+    // Assert: Verify the value is not found and the position is None.
     assert!(
-        !result,
+        !found,
         "DFS should not find the target value 'z' in the grid."
+    );
+    assert_eq!(
+        position,
+        None,
+        "DFS should return None when the target value 'z' is not found."
     );
 }
