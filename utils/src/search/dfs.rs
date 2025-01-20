@@ -1,17 +1,6 @@
 use petgraph::graph::{Graph, NodeIndex};
 use petgraph::visit::Dfs;
 
-/// Perform a depth-first search on a graph to find a target node.
-///
-/// # Parameters
-/// - `graph`: The graph to traverse.
-/// - `start`: The starting node index for the DFS.
-/// - `target`: Optional target value to search for.
-///
-/// # Returns
-/// - `Err(Some(T))`: If the target is found, contains the value of the node.
-/// - `Err(None)`: If the target is not found and a search was attempted.
-/// - `Ok(Vec<T>)`: If no target is specified, returns all visited node values.
 pub fn dfs_graph<T>(
     graph: &Graph<T, ()>,
     start: NodeIndex,
@@ -29,21 +18,18 @@ where
 
         if let Some(t) = target {
             if &value == t {
-                return Err(Some(value)); // Found the target node, return its value.
+                return Err(Some(value));
             }
         }
     }
 
     if target.is_none() {
-        Ok(visited) // Return all visited nodes when no target is specified.
+        Ok(visited)
     } else {
-        Err(None) // Target not found.
+        Err(None)
     }
 }
 
-/// Perform a depth-first search to find the target value in the grid.
-/// Returns a tuple: (bool, Option<(usize, usize)>), where the boolean indicates
-/// whether the value was found, and the `Option` provides the position if found.
 pub fn dfs_grid<T: PartialEq>(
     grid: &[Vec<T>],
     start: (usize, usize),
@@ -53,25 +39,21 @@ pub fn dfs_grid<T: PartialEq>(
     let mut stack = vec![start];
 
     while let Some((row, col)) = stack.pop() {
-        // Skip out-of-bounds or already-visited cells.
         if row >= grid.len() || col >= grid[0].len() || visited[row][col] {
             continue;
         }
 
-        // Mark the cell as visited.
         visited[row][col] = true;
 
-        // Check if the current cell contains the target value.
         if &grid[row][col] == target {
             return (true, Some((row, col)));
         }
 
-        // Add neighbors to the stack (DFS traversal).
         let neighbors = [
-            (row.wrapping_sub(1), col), // Up
-            (row + 1, col),             // Down
-            (row, col.wrapping_sub(1)), // Left
-            (row, col + 1),             // Right
+            (row.wrapping_sub(1), col),
+            (row + 1, col),
+            (row, col.wrapping_sub(1)),
+            (row, col + 1),
         ];
 
         for &(next_row, next_col) in &neighbors {
@@ -81,5 +63,5 @@ pub fn dfs_grid<T: PartialEq>(
         }
     }
 
-    (false, None) // Return false and no position if the target is not found.
+    (false, None)
 }
