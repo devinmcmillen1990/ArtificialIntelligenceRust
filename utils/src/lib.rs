@@ -4,5 +4,6 @@ pub mod search {
 }
 
 pub mod pathfinding {
-    pub mod a_star;
+    pub mod a_star_graph;
+    pub mod a_star_grid;
 }

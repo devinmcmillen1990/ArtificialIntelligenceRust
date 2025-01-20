@@ -28,7 +28,7 @@ fn heuristic(a: (usize, usize), b: (usize, usize)) -> usize {
     (x1 as isize - x2 as isize).abs() as usize + (y1 as isize - y2 as isize).abs() as usize
 }
 
-pub fn a_star(
+pub fn a_star_grid(
     grid: &[Vec<bool>],
     start: (usize, usize),
     goal: (usize, usize),

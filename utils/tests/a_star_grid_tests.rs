@@ -1,14 +1,15 @@
 mod pathfinding;
 use pathfinding::grid_generator::generate_test_grid;
-use utils::pathfinding::a_star::a_star;
+use utils::pathfinding::a_star_grid::a_star_grid;
 
+// TODO: I'm not loving the grid implementations. Maybe create a test struct or something so that they can have the same grids.
 #[test]
 fn test_astar_no_obstacles() {
     let grid = generate_test_grid((5, 5), vec![]);
     let start = (0, 0);
     let goal = (4, 4);
 
-    let path = a_star(&grid, start, goal);
+    let path = a_star_grid(&grid, start, goal);
 
     assert!(!path.is_empty(), "A* should find a path.");
     assert_eq!(path.first(), Some(&start), "Path should start at the start position.");
@@ -16,7 +17,7 @@ fn test_astar_no_obstacles() {
 }
 
 #[test]
-fn test_a_star_with_cycles() {
+fn test_a_star_grid_with_cycles() {
     // Arrange: A grid with cycles where some paths loop back to earlier points.
     let mut grid = generate_test_grid((5, 5), vec![]);
     grid[1][1] = true;
@@ -31,7 +32,7 @@ fn test_a_star_with_cycles() {
     let goal = (4, 4);
 
     // Act: Perform A*.
-    let path = a_star(&grid, start, goal);
+    let path = a_star_grid(&grid, start, goal);
 
     // Assert: Verify that A* avoids cycles and finds a valid path.
     assert!(!path.is_empty(), "A* should find a valid path.");
@@ -40,7 +41,7 @@ fn test_a_star_with_cycles() {
 }
 
 #[test]
-fn test_a_star_no_solution() {
+fn test_a_star_grid_no_solution() {
     // Arrange: A grid with no possible solution.
     let mut grid = generate_test_grid((5, 5), vec![]);
     for row in 0..5 {
@@ -51,21 +52,21 @@ fn test_a_star_no_solution() {
     let goal = (4, 4);
 
     // Act: Perform A*.
-    let path = a_star(&grid, start, goal);
+    let path = a_star_grid(&grid, start, goal);
 
     // Assert: Verify that A* returns an empty path when no solution exists.
     assert!(path.is_empty(), "A* should return an empty path when no solution exists.");
 }
 
 #[test]
-fn test_a_star_target_edge_case() {
+fn test_a_star_grid_target_edge_case() {
     // Arrange: A grid where the target is on the edge of the grid.
     let grid = generate_test_grid((5, 5), vec![]);
     let start = (2, 2);
     let goal = (0, 4); // Top-right corner.
 
     // Act: Perform A*.
-    let path = a_star(&grid, start, goal);
+    let path = a_star_grid(&grid, start, goal);
 
     // Assert: Verify that A* finds a valid path to the edge target.
     assert!(!path.is_empty(), "A* should find a valid path to the edge target.");
