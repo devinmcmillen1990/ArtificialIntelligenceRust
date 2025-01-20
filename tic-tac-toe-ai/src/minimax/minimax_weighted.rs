@@ -1,16 +1,8 @@
 use crate::board::Board;
+use crate::cache::cache_minimax_weighted::{WeightedCache, WeightedStateEvaluation};
 use crate::game_state::Player;
-use crate::knowledge_cache::WeightedStateEvaluation;
-use std::collections::HashMap;
 
 /// Board weights used to guide the weighted minimax algorithm.
-///
-/// These weights prioritize strategic positions on the tic-tac-toe board:
-/// - The center (weight 5) is the most strategic position, as it provides control over multiple lines.
-/// - Corners (weight 3) are valuable for forming winning combinations and blocking opponents.
-/// - Edges (weight 2) are less critical but can still contribute to winning lines.
-///
-/// This heuristic guides the AI to make moves that are more likely to result in a win or block the opponent effectively.
 const WEIGHTS: [[i32; 3]; 3] = [
     [3, 2, 3],
     [2, 5, 2],
@@ -28,25 +20,19 @@ const WEIGHTS: [[i32; 3]; 3] = [
 /// A tuple `(usize, usize)` representing the row and column of the best move.
 pub fn best_weighted_move(
     board: &mut Board,
-    player: Player,
-    cache: &mut HashMap<u64, WeightedStateEvaluation>,
+    player: &Player,
+    cache: &mut WeightedCache,
 ) -> (usize, usize) {
     let mut best_score = i32::MIN;
     let mut move_to_make = (0, 0);
 
-    println!("Evaluating possible moves:");
-
-    let available_moves: Vec<(usize, usize)> = board.available_moves().collect();
-
-    for (row, col) in available_moves {
-        board.make_move(row, col, &player);
-        let score = weighted_minimax(board, 0, player == Player::O, cache);
+    for (row, col) in board.available_moves() {
+        board.make_move(row, col, player);
+        let score = weighted_minimax(board, 0, player == &Player::O, cache);
         board.grid[row][col] = None; // Undo the move.
 
-        // Stronger influence of weights in final decision
         let weighted_score = score + (WEIGHTS[row][col] * 100);
 
-        // Debug output for evaluation
         println!(
             "Move ({}, {}): Score = {}, Weight = {}, Weighted Score = {}",
             row, col, score, WEIGHTS[row][col], weighted_score
@@ -80,29 +66,26 @@ fn weighted_minimax(
     board: &mut Board,
     depth: i32,
     maximizing: bool,
-    cache: &mut HashMap<u64, WeightedStateEvaluation>,
+    cache: &mut WeightedCache,
 ) -> i32 {
     let hash = board.hash_state();
-    if let Some(cached_eval) = cache.get(&hash) {
-        return cached_eval.score; // Return cached score if available.
+    if let Some(cached_eval) = cache.map.get(&hash) {
+        return cached_eval.score;
     }
 
     let score = match board.get_winner() {
-        crate::game_state::GameState::Win(Player::X) => 10_000 - depth, // X wins.
-        crate::game_state::GameState::Win(Player::O) => depth - 10_000, // O wins.
-        crate::game_state::GameState::Draw => 0, // Draw.
+        crate::game_state::GameState::Win(Player::X) => 10_000 - depth,
+        crate::game_state::GameState::Win(Player::O) => depth - 10_000,
+        crate::game_state::GameState::Draw => 0,
         crate::game_state::GameState::Ongoing => {
             let mut best_score = if maximizing { i32::MIN } else { i32::MAX };
 
-            let available_moves: Vec<(usize, usize)> = board.available_moves().collect();
-
-            for (row, col) in available_moves {
+            for (row, col) in board.available_moves() {
                 board.make_move(row, col, if maximizing { &Player::X } else { &Player::O });
                 let child_score = weighted_minimax(board, depth + 1, !maximizing, cache);
                 board.grid[row][col] = None; // Undo the move.
 
-                // Rebalanced score with stronger weight influence
-                let position_weight = WEIGHTS[row][col] * 100; // Scale weights more aggressively
+                let position_weight = WEIGHTS[row][col] * 100;
                 let weighted_score = child_score + position_weight;
 
                 if maximizing {
@@ -116,13 +99,14 @@ fn weighted_minimax(
         }
     };
 
-    cache.insert(
+    cache.map.insert(
         hash,
         WeightedStateEvaluation {
             score,
             weights: evaluate_weights(board),
         },
     );
+
     score
 }
 

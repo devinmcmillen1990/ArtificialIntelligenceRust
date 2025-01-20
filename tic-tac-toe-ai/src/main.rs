@@ -1,118 +1,70 @@
-mod board;
-mod minimax;
-mod minimax_weighted;
-mod game_state;
-mod knowledge_cache;
-mod user_interface;
-
-use board::Board;
-use game_state::{GameState, Player};
-use knowledge_cache::{MinimaxCache, WeightedCache};
-use user_interface::{display_board, get_user_move, parse_command_line_args};
+use tic_tac_toe::{
+    board::Board,
+    game_state::Player,
+    cache::{
+        cache_minimax::MinimaxCache,
+        cache_minimax_weighted::WeightedCache,
+        cache_minimax_alpha_beta_pruning::AlphaBetaCache,
+    },
+    minimax::{
+        minimax,
+        minimax_weighted,
+        minimax_alpha_beta_pruning,
+    },
+    user_interface::{parse_command_line_args, get_user_move},
+};
 
 fn main() {
-    // Parse command line arguments to determine the algorithm to use.
-    let use_weighted = parse_command_line_args();
+    let args: Vec<String> = std::env::args().collect();
+    let mode = parse_command_line_args(&args);
 
-    // Load the appropriate cache based on the algorithm.
-    if use_weighted {
-        let mut cache = WeightedCache::load_from_file("cache_weighted.json");
-        println!("Loaded {} states from weighted cache.", cache.map.len());
+    let mut board = Board::new();
 
-        let mut board = Board::new();
-        let mut current_player = Player::X;
+    // Initialize caches
+    let mut minimax_cache = MinimaxCache::load_from_file("minimax_cache.json");
+    let mut weighted_cache = WeightedCache::load_from_file("weighted_cache.json");
+    let mut alpha_beta_cache = AlphaBetaCache::load_from_file("alpha_beta_cache.json");
 
-        println!("You are Player X and will make the first move!");
+    println!("You are Player X and will make the first move!");
 
-        loop {
-            display_board(&board);
-            match board.get_winner() {
-                GameState::Win(player) => {
-                    println!("{:?} wins!", player);
-                    break;
-                }
-                GameState::Draw => {
-                    println!("It's a draw!");
-                    break;
-                }
-                GameState::Ongoing => (),
-            }
-
-            if current_player == Player::X {
-                // User's turn to play.
-                loop {
-                    let (row, col) = get_user_move();
-                    if board.make_move(row, col, &current_player) {
-                        break;
-                    } else {
-                        println!("Invalid move. Try again.");
-                    }
-                }
-            } else {
-                // AI's turn using the weighted minimax algorithm.
-                let (row, col) =
-                    minimax_weighted::best_weighted_move(&mut board, current_player, &mut cache.map);
-                board.make_move(row, col, &current_player);
-                cache.save_to_file("cache_weighted.json");
-            }
-
-            // Switch to the next player.
-            current_player = if current_player == Player::X {
-                Player::O
-            } else {
-                Player::X
-            };
+    loop {
+        board.display();
+        if let Some(player_move) = get_user_move(&board) {
+            board.make_move(player_move.0, player_move.1, &Player::X);
+        } else {
+            println!("Invalid move! Try again.");
+            continue;
         }
 
-        cache.save_to_file("cache_weighted.json");
-    } else {
-        let mut cache = MinimaxCache::load_from_file("cache_minimax.json");
-        println!("Loaded {} states from minimax cache.", cache.map.len());
-
-        let mut board = Board::new();
-        let mut current_player = Player::X;
-
-        println!("You are Player X and will make the first move!");
-
-        loop {
-            display_board(&board);
-            match board.get_winner() {
-                GameState::Win(player) => {
-                    println!("{:?} wins!", player);
-                    break;
-                }
-                GameState::Draw => {
-                    println!("It's a draw!");
-                    break;
-                }
-                GameState::Ongoing => (),
-            }
-
-            if current_player == Player::X {
-                // User's turn to play.
-                loop {
-                    let (row, col) = get_user_move();
-                    if board.make_move(row, col, &current_player) {
-                        break;
-                    } else {
-                        println!("Invalid move. Try again.");
-                    }
-                }
-            } else {
-                // AI's turn using the standard minimax algorithm.
-                let (row, col) = minimax::best_move(&mut board, current_player, &mut cache.map);
-                board.make_move(row, col, &current_player);
-                cache.save_to_file("cache_minimax.json");
-            }
-
-            // Switch to the next player.
-            current_player = if current_player == Player::X {
-                Player::O
-            } else {
-                Player::X
-            };
+        if let Some(result) = board.get_winner() {
+            println!("{}", result);
+            break;
         }
 
-        cache.save_to_file("cache_minimax.json");
+        let ai_move = match mode.as_str() {
+            "--w" | "-w" => {
+                minimax_weighted::best_weighted_move(&mut board, &Player::O, &mut weighted_cache.map)
+            }
+            "--ab-pruning" | "--a" => {
+                minimax_alpha_beta_pruning::best_alpha_beta_move(&mut board, &Player::O, &mut alpha_beta_cache)
+            }
+            _ => {
+                minimax::best_move(&mut board, Player::O, &mut minimax_cache.map)
+            }
+        };
+
+        board.make_move(ai_move.0, ai_move.1, &Player::O);
+
+        if let Some(result) = board.get_winner() {
+            println!("{}", result);
+            break;
+        }
     }
+
+    // Save caches to files
+    minimax_cache.save_to_file("cache_minimax.json");
+    weighted_cache.save_to_file("cache_minimax_weighted.json");
+    alpha_beta_cache.save_to_file("cache_alpha_beta.json");
+
+    println!("Game Over!");
 }

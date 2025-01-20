@@ -1,0 +1,4 @@
+1. Add graphics for the tic tac toe game.
+2. Add option to run with GUI or cmd.
+3. Add unit tests
+4. rename to tic-tac-toe.

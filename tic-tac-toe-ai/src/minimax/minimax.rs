@@ -1,6 +1,6 @@
 use crate::board::Board;
 use crate::game_state::Player;
-use std::collections::HashMap;
+use crate::cache::cache_minimax::MinimaxCache;
 
 /// Determines the best move for the given player using the minimax algorithm.
 ///
@@ -11,17 +11,11 @@ use std::collections::HashMap;
 ///
 /// # Returns
 /// A tuple `(usize, usize)` representing the row and column of the best move.
-pub fn best_move(
-    board: &mut Board,
-    player: Player,
-    cache: &mut HashMap<u64, i32>,
-) -> (usize, usize) {
+pub fn best_move(board: &mut Board, player: Player, cache: &mut MinimaxCache) -> (usize, usize) {
     let mut best_score = i32::MIN;
     let mut move_to_make = (0, 0);
 
-    let available_moves: Vec<(usize, usize)> = board.available_moves().collect();
-
-    for (row, col) in available_moves {
+    for (row, col) in board.available_moves() {
         board.make_move(row, col, &player);
         let score = minimax(board, 0, player == Player::O, cache);
         board.grid[row][col] = None; // Undo the move.
@@ -45,27 +39,20 @@ pub fn best_move(
 ///
 /// # Returns
 /// An `i32` score representing the evaluation of the board state.
-fn minimax(
-    board: &mut Board,
-    depth: i32,
-    maximizing: bool,
-    cache: &mut HashMap<u64, i32>,
-) -> i32 {
+fn minimax(board: &mut Board, depth: i32, maximizing: bool, cache: &mut MinimaxCache) -> i32 {
     let hash = board.hash_state();
-    if let Some(&cached_score) = cache.get(&hash) {
+    if let Some(&cached_score) = cache.map.get(&hash) {
         return cached_score; // Return cached score if available.
     }
 
     let score = match board.get_winner() {
         crate::game_state::GameState::Win(Player::X) => 10 - depth, // X wins.
         crate::game_state::GameState::Win(Player::O) => depth - 10, // O wins.
-        crate::game_state::GameState::Draw => 0, // Draw.
+        crate::game_state::GameState::Draw => 0,                    // Draw.
         crate::game_state::GameState::Ongoing => {
             let mut best_score = if maximizing { i32::MIN } else { i32::MAX };
 
-            let available_moves: Vec<(usize, usize)> = board.available_moves().collect();
-
-            for (row, col) in available_moves {
+            for (row, col) in board.available_moves() {
                 board.make_move(row, col, if maximizing { &Player::X } else { &Player::O });
                 let child_score = minimax(board, depth + 1, !maximizing, cache);
                 board.grid[row][col] = None; // Undo the move.
@@ -81,6 +68,6 @@ fn minimax(
         }
     };
 
-    cache.insert(hash, score); // Cache the evaluated score.
+    cache.map.insert(hash, score); // Cache the evaluated score.
     score
 }

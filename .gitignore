@@ -1,4 +1,13 @@
 tic-tac-toe-ai/target/debug/*
 tic-tac-toe-ai/target/.rustc_info.json
 tic-tac-toe-ai/target/CACHEDIR.TAG
+
+maze-runner/target/debug/*
+maze-runner/target/.rustc_info.json
+maze-runner/target/CACHEDIR.TAG
+
+utils/target/debug/*
+utils/target/.rustc_info.json
+utils/target/CACHEDIR.TAG
+
 */Cargo.lock
