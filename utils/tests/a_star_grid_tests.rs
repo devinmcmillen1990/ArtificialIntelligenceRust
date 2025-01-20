@@ -16,7 +16,7 @@ fn test_astar_no_obstacles() {
 }
 
 #[test]
-fn test_astar_with_cycles() {
+fn test_a_star_with_cycles() {
     // Arrange: A grid with cycles where some paths loop back to earlier points.
     let mut grid = generate_test_grid((5, 5), vec![]);
     grid[1][1] = true;
@@ -40,7 +40,7 @@ fn test_astar_with_cycles() {
 }
 
 #[test]
-fn test_astar_no_solution() {
+fn test_a_star_no_solution() {
     // Arrange: A grid with no possible solution.
     let mut grid = generate_test_grid((5, 5), vec![]);
     for row in 0..5 {
@@ -58,7 +58,7 @@ fn test_astar_no_solution() {
 }
 
 #[test]
-fn test_astar_target_edge_case() {
+fn test_a_star_target_edge_case() {
     // Arrange: A grid where the target is on the edge of the grid.
     let grid = generate_test_grid((5, 5), vec![]);
     let start = (2, 2);
