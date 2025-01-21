@@ -1,5 +1,7 @@
 use petgraph::graph::{Graph, NodeIndex};
 
+#[cfg(test)]
+#[allow(dead_code)]
 pub fn generate_balanced_graph(size: usize) -> (Graph<char, ()>, NodeIndex) {
     let mut graph = Graph::<char, ()>::new();
     let mut nodes = Vec::new();
@@ -26,6 +28,8 @@ pub fn generate_balanced_graph(size: usize) -> (Graph<char, ()>, NodeIndex) {
     (graph, nodes[0]) // Return the graph and the first node
 }
 
+#[cfg(test)]
+#[allow(dead_code)]
 pub fn generate_balanced_graph_with_cycles(size: usize) -> (Graph<char, ()>, NodeIndex) {
     let mut graph = Graph::<char, ()>::new();
     let mut nodes = Vec::new();
@@ -54,6 +58,8 @@ pub fn generate_balanced_graph_with_cycles(size: usize) -> (Graph<char, ()>, Nod
     (graph, nodes[0]) // Return the graph and the first node
 }
 
+#[cfg(test)]
+#[allow(dead_code)]
 pub fn generate_unbalanced_graph(size: usize) -> (Graph<char, ()>, NodeIndex) {
     let mut graph = Graph::<char, ()>::new();
     let mut nodes = Vec::new();

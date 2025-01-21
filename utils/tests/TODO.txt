@@ -1,1 +1,0 @@
-1. Extract Graph and Grid mocks into structs or something.
