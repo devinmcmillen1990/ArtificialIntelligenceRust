@@ -1,5 +1,5 @@
 use petgraph::graph::{Graph};
-use utils::search::dfs::dfs_graph;
+use utils::search::dfs_graph::dfs_graph;
 
 #[test]
 fn test_dfs_graph_target_found() {

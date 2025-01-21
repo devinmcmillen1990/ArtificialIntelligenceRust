@@ -1,4 +1,4 @@
-use utils::search::bfs::bfs_grid;
+use utils::search::bfs_grid::bfs_grid;
 
 #[test]
 fn test_bfs_grid_search_value_with_single_element_grid_is_found() {

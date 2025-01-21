@@ -1,4 +1,4 @@
-use utils::search::dfs::dfs_grid;
+use utils::search::dfs_grid::dfs_grid;
 
 #[test]
 fn test_dfs_grid_search_value_with_single_element_grid_is_found() {

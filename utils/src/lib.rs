@@ -1,6 +1,8 @@
 pub mod search {
-    pub mod dfs;
-    pub mod bfs;
+    pub mod dfs_graph;
+    pub mod dfs_grid;
+    pub mod bfs_graph;
+    pub mod bfs_grid;
 }
 
 pub mod pathfinding {
