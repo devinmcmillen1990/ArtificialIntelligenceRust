@@ -35,16 +35,6 @@ where
     }
 }
 
-/// A* algorithm for a graph.
-///
-/// # Parameters
-/// - `graph`: The graph to perform A* on.
-/// - `start`: The starting node index.
-/// - `goal`: The goal node index.
-/// - `heuristic`: A closure that calculates the heuristic cost between two nodes.
-///
-/// # Returns
-/// - A vector of node indices representing the shortest path, or an empty vector if no path exists.
 pub fn astar_graph<T, F>(
     graph: &Graph<T, usize>,
     start: NodeIndex,
