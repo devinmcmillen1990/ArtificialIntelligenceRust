@@ -4,6 +4,7 @@ pub mod search {
     pub mod dfs_graph;
     pub mod dfs_grid;
     pub mod iterative_deepening_dfs_graph;
+    pub mod iterative_deepening_dfs_grid;
 }
 
 pub mod pathfinding {
