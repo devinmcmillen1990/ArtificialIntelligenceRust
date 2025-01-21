@@ -1,5 +1,7 @@
 mod search;
-use search::graph_generator::{generate_balanced_graph, generate_balanced_graph_with_cycles, generate_unbalanced_graph};
+use search::graph_generator::{
+    generate_balanced_graph, generate_balanced_graph_with_cycles, generate_unbalanced_graph,
+};
 use utils::search::bfs_graph::bfs_graph;
 
 #[test]

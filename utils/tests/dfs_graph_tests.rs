@@ -1,163 +1,68 @@
-use petgraph::graph::{Graph};
+mod search;
+use search::graph_generator::{
+    generate_balanced_graph, generate_balanced_graph_with_cycles, generate_unbalanced_graph,
+};
 use utils::search::dfs_graph::dfs_graph;
 
 #[test]
 fn test_dfs_graph_target_found() {
-    // Arrange
-    let mut graph = Graph::<&str, ()>::new();
-    let a = graph.add_node("A");
-    let b = graph.add_node("B");
-    let c = graph.add_node("C");
-    graph.add_edge(a, b, ());
-    graph.add_edge(b, c, ());
-
-    let target = "C";
-
-    // Act
-    let result = dfs_graph(&graph, a, Some(&target));
-
-    // Assert
-    assert_eq!(
-        result,
-        Err(Some("C")),
-        "DFS should find the target node 'C' in the graph."
-    );
+    let (graph, start) = generate_balanced_graph(3);
+    let result = dfs_graph(&graph, start, Some(&'C'));
+    assert_eq!(result, Err(Some('C')));
 }
 
 #[test]
 fn test_dfs_graph_target_not_found() {
-    // Arrange
-    let mut graph = Graph::<&str, ()>::new();
-    let a = graph.add_node("A");
-    let b = graph.add_node("B");
-    let c = graph.add_node("C");
-    graph.add_edge(a, b, ());
-    graph.add_edge(b, c, ());
-
-    let target = "D";
-
-    // Act
-    let result = dfs_graph(&graph, a, Some(&target));
-
-    // Assert
-    assert_eq!(
-        result,
-        Err(None),
-        "DFS should return Err(None) when the target node 'D' is not in the graph."
-    );
+    let (graph, start) = generate_balanced_graph(3);
+    let result = dfs_graph(&graph, start, Some(&'D'));
+    assert_eq!(result, Err(None));
 }
 
 #[test]
 fn test_dfs_graph_return_all_nodes() {
-    // Arrange
-    let mut graph = Graph::<&str, ()>::new();
-    let a = graph.add_node("A");
-    let b = graph.add_node("B");
-    let c = graph.add_node("C");
-    graph.add_edge(a, b, ());
-    graph.add_edge(b, c, ());
-
-    // Act
-    let result = dfs_graph(&graph, a, None);
-
-    // Assert
-    assert_eq!(
-        result,
-        Ok(vec!["A", "B", "C"]),
-        "DFS should return all visited nodes in the graph."
-    );
+    let (graph, start) = generate_balanced_graph(3);
+    let result = dfs_graph(&graph, start, None);
+    assert_eq!(result, Ok(vec!['A', 'B', 'C']));
 }
 
 #[test]
-fn test_dfs_graph_disconnected_graph_target_found() {
-    // Arrange
-    let mut graph = Graph::<&str, ()>::new();
-    let a = graph.add_node("A");
-    let b = graph.add_node("B");
-    let c = graph.add_node("C");
-    graph.add_edge(a, b, ());
-    graph.add_edge(b, c, ());
-
-    let target = "C";
-
-    // Act
-    let result = dfs_graph(&graph, a, Some(&target));
-
-    // Assert
-    assert_eq!(
-        result,
-        Err(Some("C")),
-        "DFS should find the target node 'C' in the connected component."
-    );
-
-    // Act
-    let target = "D";
-    let result_disconnected = dfs_graph(&graph, a, Some(&target));
-
-    // Assert
-    assert_eq!(
-        result_disconnected,
-        Err(None),
-        "DFS should not find the target node 'D' in a disconnected component."
-    );
+fn test_dfs_graph_unbalanced_with_target_found() {
+    let (graph, start) = generate_unbalanced_graph(3);
+    let result = dfs_graph(&graph, start, Some(&'C'));
+    assert_eq!(result, Err(Some('C')));
 }
 
 #[test]
-fn test_dfs_graph_cyclic_graph() {
-    // Arrange
-    let mut graph = Graph::<&str, ()>::new();
-    let a = graph.add_node("A");
-    let b = graph.add_node("B");
-    let c = graph.add_node("C");
-    graph.add_edge(a, b, ());
-    graph.add_edge(b, c, ());
-    graph.add_edge(c, a, ());
-
-    let target = "C";
-
-    // Act
-    let result = dfs_graph(&graph, a, Some(&target));
-
-    // Assert
-    assert_eq!(
-        result,
-        Err(Some("C")),
-        "DFS should find the target node 'C' in the cyclic graph."
-    );
+fn test_dfs_graph_unbalanced_with_target_not_found() {
+    let (graph, start) = generate_unbalanced_graph(3);
+    let result = dfs_graph(&graph, start, Some(&'D'));
+    assert_eq!(result, Err(None));
 }
 
 #[test]
-fn test_dfs_graph_large_graph() {
-    // Arrange
-    let mut graph = Graph::<i32, ()>::new();
-    let a = graph.add_node(1);
-    let b = graph.add_node(2);
-    let c = graph.add_node(3);
-    let d = graph.add_node(4);
-    let e = graph.add_node(5);
+fn test_dfs_graph_unbalanced_return_all_nodes() {
+    let (graph, start) = generate_unbalanced_graph(3);
+    let result = dfs_graph(&graph, start, None);
+    assert_eq!(result, Ok(vec!['A', 'B', 'C']));
+}
 
-    graph.add_edge(a, b, ());
-    graph.add_edge(a, c, ());
-    graph.add_edge(b, d, ());
-    graph.add_edge(c, e, ());
+#[test]
+fn test_dfs_graph_balanced_with_cycles_with_target_found() {
+    let (graph, start) = generate_balanced_graph_with_cycles(3);
+    let result = dfs_graph(&graph, start, Some(&'C'));
+    assert_eq!(result, Err(Some('C')));
+}
 
-    // Act
-    let result = dfs_graph(&graph, a, Some(&4));
+#[test]
+fn test_dfs_graph_balanced_with_cycles_with_target_not_found() {
+    let (graph, start) = generate_balanced_graph_with_cycles(3);
+    let result = dfs_graph(&graph, start, Some(&'D'));
+    assert_eq!(result, Err(None));
+}
 
-    // Assert
-    assert_eq!(
-        result,
-        Err(Some(4)),
-        "DFS should find the target node 4 in the large graph."
-    );
-
-    // Act
-    let result_all_nodes = dfs_graph(&graph, a, None);
-
-    // Assert
-    assert_eq!(
-        result_all_nodes,
-        Ok(vec![1, 2, 4, 3, 5]),
-        "DFS should visit all nodes in the graph."
-    );
+#[test]
+fn test_dfs_graph_balanced_with_cycles_return_all_nodes() {
+    let (graph, start) = generate_balanced_graph_with_cycles(3);
+    let result = dfs_graph(&graph, start, None);
+    assert_eq!(result, Ok(vec!['A', 'B', 'C']));
 }
