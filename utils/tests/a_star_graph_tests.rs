@@ -1,7 +1,6 @@
 use petgraph::graph::{Graph};
 use utils::pathfinding::a_star_graph::astar_graph;
 
-// TODO: Extract the graph generation logic, maybe even make a struct or something for the mock data.
 #[test]
 fn test_astar_graph_no_obstacles() {
     // Arrange: Create a simple graph without obstacles.

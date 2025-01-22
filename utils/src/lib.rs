@@ -10,4 +10,6 @@ pub mod search {
 pub mod pathfinding {
     pub mod a_star_graph;
     pub mod a_star_grid;
+    pub mod uniform_cost_search_graph;
+    pub mod uniform_cost_search_grid;
 }
